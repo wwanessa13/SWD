@@ -1,0 +1,249 @@
+---
+title: "Narrativa"
+format: html
+execute:
+  warning: false
+  message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{=html}
+<style>
+p {
+  text-align: justify;
+}
+</style>
+```
+
+**Tipos de narrativas:**
+
+-   **Exploratória**: usada durante a análise, com gráficos que ajudam o analista a descobrir padrões, levantar hipóteses e testar relações.
+
+-   **Explanatória**: voltada para a comunicação final, destacando apenas os pontos mais relevantes e construindo uma mensagem clara. Nesse abordagem, surge uma pergunta importante: o que eu quero que meu público faça com isso? Apresentar dados não basta; é preciso articular de forma clara o motivo e a ação esperada. Essa perspectiva pode parecer desconfortável, pois exige que o comunicador assuma uma posição ativa, conduzindo seu público a uma decisão ou reflexão. No entanto, é justamente essa articulação que transforma uma apresentação em algo memorável. Mesmo quando não se trata de recomendar diretamente uma ação, sugerir próximos passos mantém a conversa viva, ativa e engajada. A ação, nesse contexto, é o motor da comunicação.
+
+    Isso exige sair da zona de conforto. Em vez de se limitar a exibir números, o comunicador precisa traduzir dados em movimento. Uma apresentação de vendas, por exemplo, não deve terminar apenas com o gráfico de resultados, mas com um chamado: apoiar estratégias que sustentem o crescimento, ou investigar as causas de uma queda específica. É nessa transição do “olhar” para o “agir” que os dados ganham poder narrativo. A cada mensagem transmitida, o comunicador deve se perguntar: o que eu quero que o público faça a partir daqui?
+
+**Dados:** <https://www.kaggle.com/datasets/uelitonviana/walmart>
+
+O Walmart é uma multinacional estadunidense de lojas de departamento. Ela forneceu dados de 45 lojas, contendo informações sobre a loja e as vendas mensais. Esses dados incluem quatro semanas de feriado:
+
+![](images/clipboard-2630006497.jpeg){width="200"}
+
+![](images/clipboard-595660772.png){width="200"}
+
+![](images/clipboard-3084971582.png){width="200"}
+
+![](images/clipboard-3298669514.png){width="200"}
+
+Suponha, que você é um analista de dados do Walmart que investiga tendências nos dados e direciona as ações do time de marketing/vendas e operacional.
+
+```{r}
+library(tidyverse)
+dados <- read.csv("clean_data (1).csv") %>% 
+  select(-X, -MarkDown1, -MarkDown2, -MarkDown3, -MarkDown4, 
+         -MarkDown5, -CPI, -Size, -Unemployment)
+str(dados)
+
+summary(dados)
+
+dados <- dados %>%
+  mutate(Date = as_date(Date),
+         across(c(Type, IsHoliday, Christmas, Thanksgiving, Labor_Day, Super_Bowl, week, month, year), as.factor))
+
+summary(dados)
+```
+
+**Exploratória**
+
+Os feriados causam impacto nas vendas?
+
+```{r}
+dados %>%
+  group_by(IsHoliday) %>%
+  summarise(mean_sales = mean(Weekly_Sales)) %>% 
+  ggplot(aes(x = IsHoliday, y = mean_sales, fill = IsHoliday)) +
+  geom_col(width = 0.4) +
+  labs(title = "Impacto dos Feriados nas Vendas Semanais",
+       x = "Semana de Feriado",
+       y = "Vendas Médias Semanais") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5), 
+        legend.position = "none")
+```
+
+Qual feriado proporciona o maior aumento nas vendas justamente na semana em que ocorre?
+
+```{r}
+feriados_long <- dados %>%
+  pivot_longer(
+    cols = c(Super_Bowl, Labor_Day, Thanksgiving, Christmas),
+    names_to = "Feriado",
+    values_to = "is_holiday"
+  ) %>%
+  filter(is_holiday == "True") %>%  
+  group_by(Feriado) %>%
+  summarise(mean_sales = mean(Weekly_Sales)) %>%
+  arrange(desc(mean_sales))
+
+ggplot(feriados_long, aes(x = Feriado, y = mean_sales, fill = mean_sales)) +
+  geom_col() +
+  geom_text(aes(label = round(mean_sales, 0)), 
+                hjust = -0.2, colour = "darkred", fontface = "bold") +
+  coord_flip() +
+  ylim(0, 26000) +
+  scale_x_discrete(labels = c("Super_Bowl" = "Super Bowl",
+                              "Labor_Day" = "Labor Day")) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  labs(title = "Comparação de impacto entre feriados nas vendas semanais") +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 12),
+        legend.position = "none",
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_text(colour = "darkred", face = "bold"))
+```
+
+Qual é a tendência de vendas ao longo do ano por mês?
+
+```{r}
+dados %>% 
+  group_by(year, month) %>% 
+  summarise(mean_sales = mean(Weekly_Sales)) %>% 
+  ggplot(aes(x = month, y = mean_sales, group = year, color = as.factor(year))) + 
+  geom_line(size = 1) + 
+  geom_point() + 
+  labs(title = "Tendência mensal das vendas médias por ano", 
+       x = "Mês", y = "Vendas Semanais Médias", color = "Ano") + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Qual é a tendência de vendas ao longo do ano por semana?
+
+```{r}
+dados %>%
+  group_by(year, week) %>%
+  summarise(mean_sales = mean(Weekly_Sales)) %>%
+  ggplot(aes(x = week, y = mean_sales, group = year, color = as.factor(year))) +
+  geom_line(size = 1) +
+  geom_point() +
+  labs(title = "Tendência semanal das vendas médias por ano",
+       x = "Semana",
+       y = "Vendas Semanais Médias",
+       color = "Ano") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 90, vjust = 0.5))
+```
+
+Destacando as semanas de feriado
+
+```{r}
+cores_ano <- c(
+  "2010" = "lightgreen",
+  "2011" = "lightblue",
+  "2012" = "lightgrey"
+)
+
+cores_feriado <- c(
+  "Super Bowl" = "brown",
+  "Labor Day" = "blue",
+  "Thanksgiving" = "purple",
+  "Christmas" = "red"
+)
+
+dados_proc <- dados %>%
+  mutate(holiday_name = case_when(
+    Super_Bowl   == "True" ~ "Super Bowl",
+    Labor_Day    == "True" ~ "Labor Day",
+    Thanksgiving == "True" ~ "Thanksgiving",
+    Christmas    == "True" ~ "Christmas"
+  )) %>%
+  group_by(year, week) %>%
+  summarise(
+    mean_sales = mean(Weekly_Sales),
+    holiday_name = first(holiday_name),
+    .groups = "drop"
+  )
+
+ggplot(dados_proc) +
+  geom_line(aes(x = week, y = mean_sales, group = year, color = as.factor(year)), size = 1) +
+  geom_point(
+    data = dados_proc %>% filter(!is.na(holiday_name)),
+    aes(x = week, y = mean_sales, color = holiday_name), size = 3) +
+  scale_color_manual(values = c(cores_ano, cores_feriado)) +
+  labs(
+    title = "Tendência semanal das vendas médias por ano",
+    x = "Semana",
+    y = "Vendas médias",
+    color = "Ano / Feriado"
+  ) +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 90, vjust = 0.5))
+```
+
+Conclusões:
+
+-   Consistência anual das tendências;
+-   De modo geral, feriados aumentam as vendas médias semanais;
+-   Tendência anual e sazonalidade clara em dezembro;
+-   Embora o mês de dezembro apresente os maiores volumes de vendas devido à proximidade do Natal, o pico de vendas ocorre predominantemente na semana anterior ao feriado de Natal, e não na semana do próprio feriado.
+-   Em contrapartida, o comportamento das vendas no feriado de Thanksgiving é distinto: as vendas atingem seu auge exatamente na semana do feriado.
+-   Para os feriados Labor Day e Super Bowl, o impacto sobre as vendas semanais é bem menos expressivo, sem gerar picos significativos.
+
+Conclusão final:
+
+-   O efeito do Natal é antecipatório, enquanto o Thanksgiving impulsiona as vendas no momento do próprio feriado. Já os demais feriados não se destacam como motores do volume de vendas semanal.
+
+**Explanatória**
+
+```{r}
+# Média das vendas por semana considerando todos os anos
+dados_medio <- dados %>%
+  mutate(holiday_name = 
+           case_when(Christmas == "True" ~ "Christmas",
+                     Thanksgiving == "True" ~ "Thanksgiving")) %>%
+  group_by(week) %>%
+  summarise(mean_sales = mean(Weekly_Sales),
+            holiday_name = first(holiday_name)) %>%
+  ungroup()
+
+# Gráfico explanatório
+(f <- ggplot(dados_medio, aes(x = week, y = mean_sales, group = 1)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  labs(title = "Walmart: Impacto de feriados nas vendas",
+       x = "Semana",
+       y = "Vendas médias",
+       color = "Feriado") +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 90, vjust = 0.5)))
+
+# Selecionar apenas semanas com feriado
+semanas_feriado <- dados_medio %>%
+  filter(!is.na(holiday_name))
+
+semanas_feriado
+
+f +   
+  geom_point(data = semanas_feriado, aes(color = holiday_name), size = 4) +
+  geom_text(data = semanas_feriado %>% filter(holiday_name == "Christmas"),
+            aes(label = "Aumento antecipado!"), 
+            hjust = 1.1, vjust = 0.8, color = "red", size = 3.5) +
+  geom_text(data = semanas_feriado %>% filter(holiday_name == "Thanksgiving"),
+            aes(label = "Pico no feriado!"), 
+            hjust = 0.9, vjust = -0.9, color = "darkgreen", size = 3.5) +
+  scale_color_manual(values = c("Christmas" = "red", "Thanksgiving"="darkgreen"))
+```
+
+Thanksgiving: Ações para a semana do feriado
+
+Christmas: Ações para as semanas que antecedem o feriado
+
+Ações recomendadas:
+
+-   Ofertas e promoções
+
+-   Preparação de estoque e treinamento da equipe

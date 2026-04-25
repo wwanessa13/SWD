@@ -1,0 +1,330 @@
+---
+title: "Conhecendo os dados"
+format: html
+execute:
+  warning: false
+  message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{=html}
+<style>
+p {
+  text-align: justify;
+}
+</style>
+```
+
+## Conhecendo os dados
+
+![](images/clipboard-161905462.png){fig-align="center" width="150"}
+
+O pacote **tidyverse** abriga um conjunto de pacotes para facilitar a **manipulação, limpeza, transformação e visualização de dados**. Com uma **sintaxe consistente** e funções intuitivas, ele permite realizar tarefas complexas de forma clara e encadeada, usando o operador `%>%`.
+
+```{r}
+library(tidyverse)
+tidyverse_packages(include_self = TRUE)
+```
+
+[**Faça Perguntas aos Dados!**]{.underline}
+
+No universo da análise de dados, saber extrair o máximo de informações valiosas de um dataset é essencial. Um passo fundamental para isso é fazer perguntas inteligentes aos dados e, para auxiliar nessa tarefa, os pacotes {dplyr} e {tidyr} se destacam. Veja como eles podem te ajudar a obter respostas rápidas e relevantes.
+
+[![](images/clipboard-824011718.png){fig-align="center" width="100"}](https://rstudio.github.io/cheatsheets/data-transformation.pdf)
+
+**Como posso selecionar apenas as informações mais relevantes?**\
+Para focar nas colunas que realmente interessam, utilize `select(coluna1, coluna2, coluna3)` e reduza o dataset ao essencial.
+
+**Quero analisar apenas um subconjunto específico de dados. Como fazer?**\
+Filtre observações que atendam a um critério com `filter(coluna1 == "categoria")` ou `filter(coluna2 > valor)`.
+
+**Como posso comparar valores entre diferentes grupos?**\
+Agrupe os dados por categorias usando `group_by(coluna1)` e depois calcule estatísticas com `summarise(media = mean(coluna2), total = sum(coluna3))`.
+
+**Como posso contar rapidamente quantas observações existem por categoria?**\
+Use `group_by(coluna1) %>% summarise(n = n())` para obter contagens detalhadas por grupo.
+
+**Como posso lidar com dados faltantes ao calcular estatísticas com o summarise?**\
+Inclua `na.rm = TRUE` dentro de funções como `mean()`, `sum()` ou `median()` para ignorar valores ausentes e obter medidas corretas.
+
+**Como posso ver rapidamente quais são os valores mais altos ou mais baixos?**\
+Organize seus dados com `arrange(coluna1)` ou `arrange(desc(coluna1))` para ordenar em ordem crescente ou decrescente.
+
+**Preciso criar novas informações a partir das existentes. É possível?**\
+Sim, utilize `mutate(nova_coluna = coluna1 + coluna2)` para gerar variáveis derivadas ou indicadores adicionais.
+
+**Quero identificar rapidamente valores duplicados ou repetidos. Como faço?**\
+Use `distinct(coluna1, coluna2)` para ver apenas combinações únicas de variáveis, removendo duplicatas.
+
+**Quero criar categorias a partir de valores contínuos. É possível?**\
+Sim! Use `mutate(nova_categoria = case_when(coluna <= 10 ~ "baixa", coluna <= 20 ~ "media", TRUE ~ "alta"))` para transformar números em faixas ou grupos.
+
+**Como posso combinar informações de dois datasets diferentes?**\
+Utilize `left_join(df1, df2, by = "coluna_chave")` para adicionar colunas de outro dataset com base em uma chave comum.
+
+[![](images/clipboard-2162415831.png){fig-align="center" width="100"}](https://rstudio.github.io/cheatsheets/tidyr.pdf)
+
+**Preciso reorganizar dados de várias colunas em um formato longo para análise.**\
+Use `pivot_longer(cols = c(coluna1, coluna2, coluna3), names_to = "nova_coluna", values_to = "valor")` para transformar várias colunas em duas: “nome da variável” e “valor”.
+
+**Como posso transformar dados de formato longo para formato largo, criando colunas a partir de categorias?**\
+Use `pivot_wider(names_from = coluna_categorias, values_from = coluna_valores)` para espalhar os valores de uma coluna em várias colunas novas, deixando o dataset mais “largo”.
+
+**Quero juntar ou separar informações que estão em uma única coluna. Como faço?**\
+Separe dados com `separate(coluna, into = c("parte1", "parte2"))` ou combine várias colunas com `unite("nova_coluna", coluna1, coluna2)`.
+
+Ao fazer perguntas certas e usar funções adequadas do {dplyr}, torna-se muito mais fácil encontrar padrões, tendências e responder questões cruciais em qualquer análise de dados. Porém, para que essas respostas sejam confiáveis, é importante lembrar que, mesmo que você já tenha pensado em tudo que deseja visualizar e tenha preparado seus dados, há um detalhe fundamental: **se os dados estiverem errados, incompletos ou duplicados, seus gráficos vão mentir.**
+
+**Por que preparar os dados?**
+
+***"Um gráfico bonito com dados ruins é apenas uma ilusão bem apresentada."***
+
+## Dados bons vs Dados ruins
+
+Dados: <https://www.kaggle.com/datasets/arianazmoudeh/airbnbopendata>
+
+```{r}
+library(tidyverse)
+library(patchwork)
+
+airbnb <- read.csv("Airbnb_Open_Data.csv")
+glimpse(airbnb)
+```
+
+Nem todos os dados são iguais. Por isso precisamos explorar cada banco de dados de maneira a identificar potenciais problemas que podem surgir e até mesmo comprometer as análises posteriores.
+
+Veja alguns problemas comuns que encontramos logo ao carregar o dataset:
+
+-   Valores ausentes (NA)
+
+-   Duplicatas que distorcem médias e contagens
+
+-   Variáveis com tipos incorretos (datas como texto, preços como string)
+
+-   Escalas ou unidades inconsistentes
+
+**Lidando com valores ausentes**
+
+Primeiro iremos identificar a quantidade de NA em cada coluna:
+
+```{r}
+colSums(is.na(airbnb))
+```
+
+Podemos ver que as colunas `number.of.reviews`, `review.rate.numbers`, `calculated.host.listings.count`, `long`, `instant_bookable`, `Construction.year`, `minimum.nights`, `reviews.per.month` e `availability.365` tem muitos valores ausentes.
+
+Assim, surgem perguntas:
+
+[Qual será o impacto disso na nossa análise? O que devemos fazer?]{.underline}
+
+-   Remover linhas quando poucos valores estão ausentes.
+
+-   Excluir colunas inteiras quando a maioria dos valores está ausente.
+
+-   Imputar valores quando a variável é importante e não podemos perder informação.
+
+A decisão de como lidar com valores ausentes depende do contexto e da importância da variável para a análise.
+
+*Exclusão de linhas*
+
+```{r}
+airbnb_limpo <- na.omit(airbnb)
+nrow(airbnb) - nrow(airbnb_limpo)
+```
+
+*Exclusão de colunas*
+
+```{r}
+airbnb_limpo <- airbnb[, colSums(is.na(airbnb)) == 0]
+ncol(airbnb) - ncol(airbnb_limpo)
+```
+
+*Imputação de valores*
+
+Podemos usar a média ou a mediana, por exemplo, dependendo do tipo de variável e da distribuição dos dados.
+
+```{r}
+mean(airbnb$reviews.per.month, na.rm = TRUE)
+
+airbnb$reviews.per.month[is.na(airbnb$reviews.per.month)] <- 1.374022
+
+airbnb$reviews.per.month[is.na(airbnb$reviews.per.month)] <- median(airbnb$reviews.per.month, na.rm = TRUE)
+```
+
+**Detectando duplicatas**
+
+Outro problema comum são as duplicatas, que podem distorcer nossas análises através de contagens e médias.
+
+Duplicatas são linhas repetidas em um conjunto de dados.
+
+Elas podem surgir por diversos motivos:
+
+-   Erros na coleta → o mesmo registro foi salvo mais de uma vez.
+
+-   Importação de dados de várias fontes → o mesmo dado aparece em bases diferentes.
+
+-   Inserções manuais → pessoas digitando informações repetidas.
+
+Vamos verificar se há linhas duplicadas no dataset:
+
+```{r}
+sum(duplicated(airbnb))
+```
+
+Se quisermos eliminar registros idênticos:
+
+```{r}
+airbnb2 <- airbnb %>% distinct() # Mantém apenas a primeira ocorrência
+```
+
+Comparação
+
+```{r}
+col<- c("reviews.per.month", "number.of.reviews", "minimum.nights", "review.rate.number", "availability.365") 
+
+before <- airbnb %>% summarise(across(all_of(col), mean, na.rm = TRUE))
+
+after <- airbnb2 %>% summarise(across(all_of(col), mean, na.rm = TRUE))
+
+before - after 
+```
+
+**Ajustando tipos de dados**
+
+Outro aspecto importante da preparação de dados é garantir que cada coluna tenha o tipo de dado correto. Isso é crucial para evitar erros em análises e visualizações. Alguns exemplos de tipos de dados comuns incluem: data, numérico, categórico (fator), texto (caractere) e lógico (booleano). Abaixo iremos ajustar alguns dados do dataset do Airbnb com a função `mutate()` do dplyr.
+
+```{r}
+airbnb4 <- airbnb %>%
+  mutate(
+    # Remover o símbolo de dólar e espaços, e transformar para numérico
+    price = as.numeric(gsub("\\$|\\s", "", price)), 
+    # Converter para data
+    last.review = as.Date(last.review, format = "%m/%d/%Y"), 
+    # Converter para fator
+    neighbourhood = as.factor(neighbourhood), 
+    # Converter para fator
+    room.type = as.factor(room.type)) 
+```
+
+## Gráficos mentem?
+
+Gráficos podem ser enganosos se os dados não forem preparados corretamente. Por exemplo, um gráfico de barras pode parecer indicar uma tendência clara, mas se houver valores ausentes ou duplicados, a interpretação pode ser completamente errada. Ajustes de escala, rótulos e cores também podem distorcer a percepção dos dados. A mensagem para este último ponto é que **mesmo com dados corretos, ainda é possível criar narrativas distorcidas**.
+
+Vamos entender um pouco mais sobre isso.
+
+**Quando e por quais motivos gráficos podem mentir?**
+
+-   **Manipulação intencional** / **Falta de ética** → para favorecer uma narrativa. Pode se escolher os dados que “interessam”.
+
+-   **Falta de conhecimento técnico / Desatenção do analista** → Eixos, proporções e agregações mal configuradas. Escolhas mal pensadas de escala ou apresentação.
+
+**Como gráficos podem manipular narrativas**
+
+### Cortando o eixo Y
+
+Uma das formas mais comuns de enganar visualmente é **não começar o eixo Y no zero**. Isso exagera pequenas diferenças, fazendo-as parecer gigantescas.
+
+```{r, echo = FALSE}
+# Preço médio por tipo de quarto
+dados_quarto <- airbnb4 %>%
+  group_by(room.type) %>%
+  summarise(preco_medio = mean(price, na.rm = TRUE))
+
+# Gráfico manipulador
+grafico_manipulador <- dados_quarto %>%
+  ggplot(aes(x = room.type, y = preco_medio, fill = room.type)) +
+  geom_col() +
+  coord_cartesian(ylim = c(400, 600)) +
+  labs(title = "Gráfico manipulador: eixo cortado",
+       x = "Tipo de quarto", y = "Preço médio", fill = "Tipo de quarto") +
+  theme(axis.text.x = element_blank(),
+       plot.title = element_text(hjust = 0.5, size = 9))
+
+# Gráfico honesto
+grafico_honesto <- dados_quarto %>%
+  ggplot(aes(x = room.type, y = preco_medio, fill = room.type)) +
+  geom_col() +
+  labs(title = "Gráfico honesto: eixo inicia em zero",
+       x = "Tipo de quarto", y = "Preço médio", fill = "Tipo de quarto") +
+  theme(axis.text.x = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 9))
+
+grafico_manipulador + grafico_honesto +
+  plot_layout(guides = 'collect')
+```
+
+**Impacto visual:** o primeiro gráfico exagera as diferenças, com corte dos eixo y em 400, enquanto o segundo mostra a realidade.
+
+### Mudando a escala do eixo Y propositalmente
+
+Nesse caso, o eixo Y é alterado para uma escala logarítmica, o que pode distorcer a percepção das diferenças entre categorias. Esse tipo de manipulação não é proibida, e em algumas áreas ou tipos de experimentos é necessária, mas deve ser usada com cautela e sempre de forma explicada para que o leitor entenda o porquê da escolha.
+
+```{r, echo = FALSE}
+# Escala comprimida para "esconder" diferenças
+grafico_comprimido <- dados_quarto %>%
+  ggplot(aes(x = room.type, y = preco_medio, fill = room.type)) +
+  geom_col() +
+  scale_y_log10() +
+  labs(title = "Gráfico manipulador: escala logarítmica",
+       x = "Tipo de quarto", y = "Preço médio (log10)", fill = "Tipo de quarto") +
+  theme(axis.text.x = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 9))
+
+# Escala normal
+grafico_normal <- dados_quarto %>%
+  ggplot(aes(x = room.type, y = preco_medio, fill = room.type)) +
+  geom_col() +
+  labs(title = "Gráfico honesto: escala linear",
+       x = "Tipo de quarto", y = "Preço médio", fill = "Tipo de quarto") +
+  theme(axis.text.x = element_blank(),
+        plot.title = element_text(hjust = 0.5, size = 9))
+
+grafico_comprimido + grafico_normal +
+  plot_layout(guides = 'collect')
+```
+
+**Impacto visual:** o gráfico com escala logarítmica achata as diferenças e pode levar a conclusões erradas.
+
+### Escolhendo os dados que “interessam”
+
+Outro problema comum é selecionar apenas uma parte dos dados para criar uma narrativa conveniente, que ajude a reforçar um ponto de vista específico.
+
+```{r, echo = FALSE}
+# Só dois tipos de quarto
+grafico_selec <- airbnb4 %>%
+  filter(room.type %in% c("Hotel room", "Shared room")) %>%
+  group_by(room.type) %>%
+  summarise(preco_medio = mean(price, na.rm = TRUE)) %>%
+  ggplot(aes(x = room.type, y = preco_medio, fill = room.type)) +
+  geom_col() +
+  labs(title = "Só dois tipos de quarto",
+       x = "Tipo de quarto", y = "Preço médio", fill = "Tipo de quarto") +
+  theme(axis.text.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+# Todos os dados para comparação
+grafico_todos <- dados_quarto %>%
+  ggplot(aes(x = room.type, y = preco_medio, fill = room.type)) +
+  geom_col() +
+  labs(title = "Gráfico completo",
+       x = "Tipo de quarto", y = "Preço médio", fill = "Tipo de quarto") +
+  theme(axis.text.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+grafico_selec + grafico_todos
+```
+
+No gráfico com os dados escolhidos, parece uma boa opção alugar um quarto compartilhado devido ao seu menor preço frente ao quarto de hotel. Entretanto, no gráfico completo vemos que há outras opções melhores com a mesma faixa de preço do quarto compartilhado.
+
+**Conclusão**
+
+-   Dados ruins → conclusões ruins.
+
+-   Preparar os dados é tão importante quanto saber visualizá-los.
+
+-   Gráficos são narrativas. A responsabilidade do analista é informar, não enganar.
+
+-   Sempre questione os dados e as escolhas feitas na visualização.
+
+![](images/clipboard-9023191.jpeg){fig-align="center" width="150"}

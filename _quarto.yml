@@ -1,0 +1,21 @@
+project:
+  type: book
+
+book:
+  title: "Storytelling with data in R - Lima, W. A. e Paiva, G. F."
+  chapters:
+    - index.qmd 
+    - Prep.qmd
+    - ggplot2.qmd
+    - Design.qmd
+    - Cores.qmd
+    - Comunicar.qmd
+    - Chamada.qmd
+    - Desafio.qmd
+
+
+format:
+  html:
+    theme: cerulean
+
+editor: visual

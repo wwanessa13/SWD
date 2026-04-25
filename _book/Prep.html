@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>2&nbsp; Conhecendo os dados – Storytelling with data in R - Lima, W. A. e Paiva, G. F.</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./ggplot2.html" rel="next">
+<link href="./index.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-49c62e5b8c3163634b294513a7851f6b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Prep.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Conhecendo os dados</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Storytelling with data in R - Lima, W. A. e Paiva, G. F.</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introdução</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Prep.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Conhecendo os dados</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ggplot2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Gramática dos gráficos</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Design.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tipos de gráfico</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Cores.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Cores</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Comunicar.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Comunicação personalizada</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Chamada.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Narrativa</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Desafio.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Desafio R-Ladies GYN</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#conhecendo-os-dados" id="toc-conhecendo-os-dados" class="nav-link active" data-scroll-target="#conhecendo-os-dados"><span class="header-section-number">2.1</span> Conhecendo os dados</a></li>
+  <li><a href="#dados-bons-vs-dados-ruins" id="toc-dados-bons-vs-dados-ruins" class="nav-link" data-scroll-target="#dados-bons-vs-dados-ruins"><span class="header-section-number">2.2</span> Dados bons vs Dados ruins</a></li>
+  <li><a href="#gráficos-mentem" id="toc-gráficos-mentem" class="nav-link" data-scroll-target="#gráficos-mentem"><span class="header-section-number">2.3</span> Gráficos mentem?</a>
+  <ul class="collapse">
+  <li><a href="#cortando-o-eixo-y" id="toc-cortando-o-eixo-y" class="nav-link" data-scroll-target="#cortando-o-eixo-y"><span class="header-section-number">2.3.1</span> Cortando o eixo Y</a></li>
+  <li><a href="#mudando-a-escala-do-eixo-y-propositalmente" id="toc-mudando-a-escala-do-eixo-y-propositalmente" class="nav-link" data-scroll-target="#mudando-a-escala-do-eixo-y-propositalmente"><span class="header-section-number">2.3.2</span> Mudando a escala do eixo Y propositalmente</a></li>
+  <li><a href="#escolhendo-os-dados-que-interessam" id="toc-escolhendo-os-dados-que-interessam" class="nav-link" data-scroll-target="#escolhendo-os-dados-que-interessam"><span class="header-section-number">2.3.3</span> Escolhendo os dados que “interessam”</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Conhecendo os dados</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<style>
+p {
+  text-align: justify;
+}
+</style>
+<section id="conhecendo-os-dados" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="conhecendo-os-dados"><span class="header-section-number">2.1</span> Conhecendo os dados</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/clipboard-161905462.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="150"></p>
+</figure>
+</div>
+<p>O pacote <strong>tidyverse</strong> abriga um conjunto de pacotes para facilitar a <strong>manipulação, limpeza, transformação e visualização de dados</strong>. Com uma <strong>sintaxe consistente</strong> e funções intuitivas, ele permite realizar tarefas complexas de forma clara e encadeada, usando o operador <code>%&gt;%</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tidyverse_packages</span>(<span class="at">include_self =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "broom"         "conflicted"    "cli"           "dbplyr"       
+ [5] "dplyr"         "dtplyr"        "forcats"       "ggplot2"      
+ [9] "googledrive"   "googlesheets4" "haven"         "hms"          
+[13] "httr"          "jsonlite"      "lubridate"     "magrittr"     
+[17] "modelr"        "pillar"        "purrr"         "ragg"         
+[21] "readr"         "readxl"        "reprex"        "rlang"        
+[25] "rstudioapi"    "rvest"         "stringr"       "tibble"       
+[29] "tidyr"         "xml2"          "tidyverse"    </code></pre>
+</div>
+</div>
+<p><u><strong>Faça Perguntas aos Dados!</strong></u></p>
+<p>No universo da análise de dados, saber extrair o máximo de informações valiosas de um dataset é essencial. Um passo fundamental para isso é fazer perguntas inteligentes aos dados e, para auxiliar nessa tarefa, os pacotes {dplyr} e {tidyr} se destacam. Veja como eles podem te ajudar a obter respostas rápidas e relevantes.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://rstudio.github.io/cheatsheets/data-transformation.pdf"><img src="images/clipboard-824011718.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="100"></a></p>
+</figure>
+</div>
+<p><strong>Como posso selecionar apenas as informações mais relevantes?</strong><br>
+Para focar nas colunas que realmente interessam, utilize <code>select(coluna1, coluna2, coluna3)</code> e reduza o dataset ao essencial.</p>
+<p><strong>Quero analisar apenas um subconjunto específico de dados. Como fazer?</strong><br>
+Filtre observações que atendam a um critério com&nbsp;<code>filter(coluna1 == "categoria")</code> ou <code>filter(coluna2 &gt; valor)</code>.</p>
+<p><strong>Como posso comparar valores entre diferentes grupos?</strong><br>
+Agrupe os dados por categorias usando <code>group_by(coluna1)</code> e depois calcule estatísticas com <code>summarise(media = mean(coluna2), total = sum(coluna3))</code>.</p>
+<p><strong>Como posso contar rapidamente quantas observações existem por categoria?</strong><br>
+Use <code>group_by(coluna1) %&gt;% summarise(n = n())</code> para obter contagens detalhadas por grupo.</p>
+<p><strong>Como posso lidar com dados faltantes ao calcular estatísticas com o summarise?</strong><br>
+Inclua <code>na.rm = TRUE</code> dentro de funções como <code>mean()</code>, <code>sum()</code> ou <code>median()</code> para ignorar valores ausentes e obter medidas corretas.</p>
+<p><strong>Como posso ver rapidamente quais são os valores mais altos ou mais baixos?</strong><br>
+Organize seus dados com <code>arrange(coluna1)</code> ou <code>arrange(desc(coluna1))</code> para ordenar em ordem crescente ou decrescente.</p>
+<p><strong>Preciso criar novas informações a partir das existentes. É possível?</strong><br>
+Sim, utilize <code>mutate(nova_coluna = coluna1 + coluna2)</code> para gerar variáveis derivadas ou indicadores adicionais.</p>
+<p><strong>Quero identificar rapidamente valores duplicados ou repetidos. Como faço?</strong><br>
+Use <code>distinct(coluna1, coluna2)</code> para ver apenas combinações únicas de variáveis, removendo duplicatas.</p>
+<p><strong>Quero criar categorias a partir de valores contínuos. É possível?</strong><br>
+Sim! Use <code>mutate(nova_categoria = case_when(coluna &lt;= 10 ~ "baixa", coluna &lt;= 20 ~ "media", TRUE ~ "alta"))</code> para transformar números em faixas ou grupos.</p>
+<p><strong>Como posso combinar informações de dois datasets diferentes?</strong><br>
+Utilize <code>left_join(df1, df2, by = "coluna_chave")</code> para adicionar colunas de outro dataset com base em uma chave comum.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://rstudio.github.io/cheatsheets/tidyr.pdf"><img src="images/clipboard-2162415831.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="100"></a></p>
+</figure>
+</div>
+<p><strong>Preciso reorganizar dados de várias colunas em um formato longo para análise.</strong><br>
+Use <code>pivot_longer(cols = c(coluna1, coluna2, coluna3), names_to = "nova_coluna", values_to = "valor")</code> para transformar várias colunas em duas: “nome da variável” e “valor”.</p>
+<p><strong>Como posso transformar dados de formato longo para formato largo, criando colunas a partir de categorias?</strong><br>
+Use <code>pivot_wider(names_from = coluna_categorias, values_from = coluna_valores)</code> para espalhar os valores de uma coluna em várias colunas novas, deixando o dataset mais “largo”.</p>
+<p><strong>Quero juntar ou separar informações que estão em uma única coluna. Como faço?</strong><br>
+Separe dados com <code>separate(coluna, into = c("parte1", "parte2"))</code> ou combine várias colunas com <code>unite("nova_coluna", coluna1, coluna2)</code>.</p>
+<p>Ao fazer perguntas certas e usar funções adequadas do {dplyr}, torna-se muito mais fácil encontrar padrões, tendências e responder questões cruciais em qualquer análise de dados. Porém, para que essas respostas sejam confiáveis, é importante lembrar que, mesmo que você já tenha pensado em tudo que deseja visualizar e tenha preparado seus dados, há um detalhe fundamental: <strong>se os dados estiverem errados, incompletos ou duplicados, seus gráficos vão mentir.</strong></p>
+<p><strong>Por que preparar os dados?</strong></p>
+<p><strong><em>“Um gráfico bonito com dados ruins é apenas uma ilusão bem apresentada.”</em></strong></p>
+</section>
+<section id="dados-bons-vs-dados-ruins" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="dados-bons-vs-dados-ruins"><span class="header-section-number">2.2</span> Dados bons vs Dados ruins</h2>
+<p>Dados: <a href="https://www.kaggle.com/datasets/arianazmoudeh/airbnbopendata" class="uri">https://www.kaggle.com/datasets/arianazmoudeh/airbnbopendata</a></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>airbnb <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"Airbnb_Open_Data.csv"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(airbnb)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 102,599
+Columns: 26
+$ id                             &lt;int&gt; 1001254, 1002102, 1002403, 1002755, 100…
+$ NAME                           &lt;chr&gt; "Clean &amp; quiet apt home by the park", "…
+$ host.id                        &lt;dbl&gt; 80014485718, 52335172823, 78829239556, …
+$ host_identity_verified         &lt;chr&gt; "unconfirmed", "verified", "", "unconfi…
+$ host.name                      &lt;chr&gt; "Madaline", "Jenna", "Elise", "Garry", …
+$ neighbourhood.group            &lt;chr&gt; "Brooklyn", "Manhattan", "Manhattan", "…
+$ neighbourhood                  &lt;chr&gt; "Kensington", "Midtown", "Harlem", "Cli…
+$ lat                            &lt;dbl&gt; 40.64749, 40.75362, 40.80902, 40.68514,…
+$ long                           &lt;dbl&gt; -73.97237, -73.98377, -73.94190, -73.95…
+$ country                        &lt;chr&gt; "United States", "United States", "Unit…
+$ country.code                   &lt;chr&gt; "US", "US", "US", "US", "US", "US", "US…
+$ instant_bookable               &lt;lgl&gt; FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, …
+$ cancellation_policy            &lt;chr&gt; "strict", "moderate", "flexible", "mode…
+$ room.type                      &lt;chr&gt; "Private room", "Entire home/apt", "Pri…
+$ Construction.year              &lt;int&gt; 2020, 2007, 2005, 2005, 2009, 2013, 201…
+$ price                          &lt;chr&gt; "$966 ", "$142 ", "$620 ", "$368 ", "$2…
+$ service.fee                    &lt;chr&gt; "$193 ", "$28 ", "$124 ", "$74 ", "$41 …
+$ minimum.nights                 &lt;int&gt; 10, 30, 3, 30, 10, 3, 45, 45, 2, 2, 1, …
+$ number.of.reviews              &lt;int&gt; 9, 45, 0, 270, 9, 74, 49, 49, 430, 118,…
+$ last.review                    &lt;chr&gt; "10/19/2021", "5/21/2022", "", "7/5/201…
+$ reviews.per.month              &lt;dbl&gt; 0.21, 0.38, NA, 4.64, 0.10, 0.59, 0.40,…
+$ review.rate.number             &lt;int&gt; 4, 4, 5, 4, 3, 3, 5, 5, 3, 5, 3, 4, 4, …
+$ calculated.host.listings.count &lt;int&gt; 6, 2, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, …
+$ availability.365               &lt;int&gt; 286, 228, 352, 322, 289, 374, 224, 219,…
+$ house_rules                    &lt;chr&gt; "Clean up and treat the home the way yo…
+$ license                        &lt;chr&gt; "", "", "", "", "", "", "", "", "", "",…</code></pre>
+</div>
+</div>
+<p>Nem todos os dados são iguais. Por isso precisamos explorar cada banco de dados de maneira a identificar potenciais problemas que podem surgir e até mesmo comprometer as análises posteriores.</p>
+<p>Veja alguns problemas comuns que encontramos logo ao carregar o dataset:</p>
+<ul>
+<li><p>Valores ausentes (NA)</p></li>
+<li><p>Duplicatas que distorcem médias e contagens</p></li>
+<li><p>Variáveis com tipos incorretos (datas como texto, preços como string)</p></li>
+<li><p>Escalas ou unidades inconsistentes</p></li>
+</ul>
+<p><strong>Lidando com valores ausentes</strong></p>
+<p>Primeiro iremos identificar a quantidade de NA em cada coluna:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(airbnb))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                            id                           NAME 
+                             0                              0 
+                       host.id         host_identity_verified 
+                             0                              0 
+                     host.name            neighbourhood.group 
+                             0                              0 
+                 neighbourhood                            lat 
+                             0                              8 
+                          long                        country 
+                             8                              0 
+                  country.code               instant_bookable 
+                             0                            105 
+           cancellation_policy                      room.type 
+                             0                              0 
+             Construction.year                          price 
+                           214                              0 
+                   service.fee                 minimum.nights 
+                             0                            409 
+             number.of.reviews                    last.review 
+                           183                              0 
+             reviews.per.month             review.rate.number 
+                         15879                            326 
+calculated.host.listings.count               availability.365 
+                           319                            448 
+                   house_rules                        license 
+                             0                              0 </code></pre>
+</div>
+</div>
+<p>Podemos ver que as colunas <code>number.of.reviews</code>, <code>review.rate.numbers</code>, <code>calculated.host.listings.count</code>, <code>long</code>, <code>instant_bookable</code>, <code>Construction.year</code>, <code>minimum.nights</code>, <code>reviews.per.month</code> e <code>availability.365</code> tem muitos valores ausentes.</p>
+<p>Assim, surgem perguntas:</p>
+<p><u>Qual será o impacto disso na nossa análise? O que devemos fazer?</u></p>
+<ul>
+<li><p>Remover linhas quando poucos valores estão ausentes.</p></li>
+<li><p>Excluir colunas inteiras quando a maioria dos valores está ausente.</p></li>
+<li><p>Imputar valores quando a variável é importante e não podemos perder informação.</p></li>
+</ul>
+<p>A decisão de como lidar com valores ausentes depende do contexto e da importância da variável para a análise.</p>
+<p><em>Exclusão de linhas</em></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>airbnb_limpo <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(airbnb)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(airbnb) <span class="sc">-</span> <span class="fu">nrow</span>(airbnb_limpo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 17155</code></pre>
+</div>
+</div>
+<p><em>Exclusão de colunas</em></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>airbnb_limpo <span class="ot">&lt;-</span> airbnb[, <span class="fu">colSums</span>(<span class="fu">is.na</span>(airbnb)) <span class="sc">==</span> <span class="dv">0</span>]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ncol</span>(airbnb) <span class="sc">-</span> <span class="fu">ncol</span>(airbnb_limpo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 10</code></pre>
+</div>
+</div>
+<p><em>Imputação de valores</em></p>
+<p>Podemos usar a média ou a mediana, por exemplo, dependendo do tipo de variável e da distribuição dos dados.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(airbnb<span class="sc">$</span>reviews.per.month, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.374022</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>airbnb<span class="sc">$</span>reviews.per.month[<span class="fu">is.na</span>(airbnb<span class="sc">$</span>reviews.per.month)] <span class="ot">&lt;-</span> <span class="fl">1.374022</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>airbnb<span class="sc">$</span>reviews.per.month[<span class="fu">is.na</span>(airbnb<span class="sc">$</span>reviews.per.month)] <span class="ot">&lt;-</span> <span class="fu">median</span>(airbnb<span class="sc">$</span>reviews.per.month, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Detectando duplicatas</strong></p>
+<p>Outro problema comum são as duplicatas, que podem distorcer nossas análises através de contagens e médias.</p>
+<p>Duplicatas são linhas repetidas em um conjunto de dados.</p>
+<p>Elas podem surgir por diversos motivos:</p>
+<ul>
+<li><p>Erros na coleta → o mesmo registro foi salvo mais de uma vez.</p></li>
+<li><p>Importação de dados de várias fontes → o mesmo dado aparece em bases diferentes.</p></li>
+<li><p>Inserções manuais → pessoas digitando informações repetidas.</p></li>
+</ul>
+<p>Vamos verificar se há linhas duplicadas no dataset:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">duplicated</span>(airbnb))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 541</code></pre>
+</div>
+</div>
+<p>Se quisermos eliminar registros idênticos:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>airbnb2 <span class="ot">&lt;-</span> airbnb <span class="sc">%&gt;%</span> <span class="fu">distinct</span>() <span class="co"># Mantém apenas a primeira ocorrência</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Comparação</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>col<span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"reviews.per.month"</span>, <span class="st">"number.of.reviews"</span>, <span class="st">"minimum.nights"</span>, <span class="st">"review.rate.number"</span>, <span class="st">"availability.365"</span>) </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>before <span class="ot">&lt;-</span> airbnb <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(col), mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>after <span class="ot">&lt;-</span> airbnb2 <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(col), mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>before <span class="sc">-</span> after </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  reviews.per.month number.of.reviews minimum.nights review.rate.number
+1      -0.001171496       -0.03420569    0.009204691       0.0003730864
+  availability.365
+1       0.08926198</code></pre>
+</div>
+</div>
+<p><strong>Ajustando tipos de dados</strong></p>
+<p>Outro aspecto importante da preparação de dados é garantir que cada coluna tenha o tipo de dado correto. Isso é crucial para evitar erros em análises e visualizações. Alguns exemplos de tipos de dados comuns incluem: data, numérico, categórico (fator), texto (caractere) e lógico (booleano). Abaixo iremos ajustar alguns dados do dataset do Airbnb com a função <code>mutate()</code> do dplyr.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>airbnb4 <span class="ot">&lt;-</span> airbnb <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Remover o símbolo de dólar e espaços, e transformar para numérico</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">price =</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">$|</span><span class="sc">\\</span><span class="st">s"</span>, <span class="st">""</span>, price)), </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Converter para data</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">last.review =</span> <span class="fu">as.Date</span>(last.review, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>), </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Converter para fator</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">neighbourhood =</span> <span class="fu">as.factor</span>(neighbourhood), </span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Converter para fator</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">room.type =</span> <span class="fu">as.factor</span>(room.type)) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="gráficos-mentem" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="gráficos-mentem"><span class="header-section-number">2.3</span> Gráficos mentem?</h2>
+<p>Gráficos podem ser enganosos se os dados não forem preparados corretamente. Por exemplo, um gráfico de barras pode parecer indicar uma tendência clara, mas se houver valores ausentes ou duplicados, a interpretação pode ser completamente errada. Ajustes de escala, rótulos e cores também podem distorcer a percepção dos dados. A mensagem para este último ponto é que <strong>mesmo com dados corretos, ainda é possível criar narrativas distorcidas</strong>.</p>
+<p>Vamos entender um pouco mais sobre isso.</p>
+<p><strong>Quando e por quais motivos gráficos podem mentir?</strong></p>
+<ul>
+<li><p><strong>Manipulação intencional</strong> / <strong>Falta de ética</strong> → para favorecer uma narrativa. Pode se escolher os dados que “interessam”.</p></li>
+<li><p><strong>Falta de conhecimento técnico / Desatenção do analista</strong> → Eixos, proporções e agregações mal configuradas. Escolhas mal pensadas de escala ou apresentação.</p></li>
+</ul>
+<p><strong>Como gráficos podem manipular narrativas</strong></p>
+<section id="cortando-o-eixo-y" class="level3" data-number="2.3.1">
+<h3 data-number="2.3.1" class="anchored" data-anchor-id="cortando-o-eixo-y"><span class="header-section-number">2.3.1</span> Cortando o eixo Y</h3>
+<p>Uma das formas mais comuns de enganar visualmente é <strong>não começar o eixo Y no zero</strong>. Isso exagera pequenas diferenças, fazendo-as parecer gigantescas.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Prep_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Impacto visual:</strong> o primeiro gráfico exagera as diferenças, com corte dos eixo y em 400, enquanto o segundo mostra a realidade.</p>
+</section>
+<section id="mudando-a-escala-do-eixo-y-propositalmente" class="level3" data-number="2.3.2">
+<h3 data-number="2.3.2" class="anchored" data-anchor-id="mudando-a-escala-do-eixo-y-propositalmente"><span class="header-section-number">2.3.2</span> Mudando a escala do eixo Y propositalmente</h3>
+<p>Nesse caso, o eixo Y é alterado para uma escala logarítmica, o que pode distorcer a percepção das diferenças entre categorias. Esse tipo de manipulação não é proibida, e em algumas áreas ou tipos de experimentos é necessária, mas deve ser usada com cautela e sempre de forma explicada para que o leitor entenda o porquê da escolha.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Prep_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Impacto visual:</strong> o gráfico com escala logarítmica achata as diferenças e pode levar a conclusões erradas.</p>
+</section>
+<section id="escolhendo-os-dados-que-interessam" class="level3" data-number="2.3.3">
+<h3 data-number="2.3.3" class="anchored" data-anchor-id="escolhendo-os-dados-que-interessam"><span class="header-section-number">2.3.3</span> Escolhendo os dados que “interessam”</h3>
+<p>Outro problema comum é selecionar apenas uma parte dos dados para criar uma narrativa conveniente, que ajude a reforçar um ponto de vista específico.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Prep_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>No gráfico com os dados escolhidos, parece uma boa opção alugar um quarto compartilhado devido ao seu menor preço frente ao quarto de hotel. Entretanto, no gráfico completo vemos que há outras opções melhores com a mesma faixa de preço do quarto compartilhado.</p>
+<p><strong>Conclusão</strong></p>
+<ul>
+<li><p>Dados ruins → conclusões ruins.</p></li>
+<li><p>Preparar os dados é tão importante quanto saber visualizá-los.</p></li>
+<li><p>Gráficos são narrativas. A responsabilidade do analista é informar, não enganar.</p></li>
+<li><p>Sempre questione os dados e as escolhas feitas na visualização.</p></li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/clipboard-9023191.jpeg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="150"></p>
+</figure>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link" aria-label="Introdução">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introdução</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./ggplot2.html" class="pagination-link" aria-label="Gramática dos gráficos">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Gramática dos gráficos</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,169 @@
+---
+title: "Desafio R-Ladies GYN"
+format: html
+execute:
+  warning: false
+  message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{=html}
+<style>
+p {
+  text-align: justify;
+}
+</style>
+```
+
+## Desafio
+
+![](images/clipboard-3955260018.png){fig-align="center" width="500"}
+
+Este livro foi lançado no curso STORYTELLING WITH DATA IN R promovido pelo [RLadies Goiânia](https://www.rladiesgyn.com), onde a escritora [Wanessa Alves Lima](www.linkedin.com/in/wanessa-alves-lima-67028a252) propôs o desafio a seguir.
+
+**DADOS**
+
+<https://www.kaggle.com/datasets/reignrichard/coffee-store-sales>
+
+Este conjunto de dados captura transações diárias de vendas de uma cafeteria na Cidade do Cabo (África do Sul). Ele foi projetado para ajudar a explorar os hábitos do cliente e o desempenho dos negócios.
+
+money: Valor gasto por transação (em rands sul-africanos).
+
+```{r}
+# Manipulação inicial
+library(tidyverse)
+dados <- readxl::read_excel("Coffe_sales.xlsx") %>%
+  select(-card, -cash_type, -date) %>% 
+  mutate(across(where(is.character), as.factor)) %>% 
+  filter(hour_of_day != 6) %>%
+  na.omit()
+summary(dados)
+```
+
+**DESAFIO**
+
+É possível obter diferentes insights a partir desses dados. Explore os dados e crie uma narrativa.
+
+**Criar dois gráficos no R com base nesse dataset:**
+
+-   **Versão A**
+
+    -   Faça um gráfico "cru" que mostre um aspecto interessante dos dados.
+
+-   **Versão B**
+
+    -   Refaça a visualização aplicando o que você aprendeu neste livro.
+
+Una os gráficos com o pathwork e adicione o seu nome em *caption.*
+
+```{r}
+library(patchwork)
+```
+
+## Exemplo
+
+```{r}
+library(showtext)
+
+font_add_google("Aladin", "Zilla")
+
+showtext_auto()
+```
+
+[Antes]{.underline}
+
+```{r}
+# Agregar receita total por hora e dia da semana
+dados_agg <- dados %>%
+  group_by(hour_of_day, Weekday) %>%
+  summarise(total_money = sum(money))
+
+# Definir fator ordenado para dias da semana
+dados_agg$Weekday <- factor(dados_agg$Weekday,
+                            levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+
+# Gráfico de linha colorido pelo dia da semana
+g1 <- ggplot(dados_agg, aes(x = hour_of_day, y = total_money, color = Weekday)) +
+  geom_line(size = 1) +
+  scale_color_viridis_d(option = "plasma") +
+  scale_x_continuous(breaks = seq(min(dados_agg$hour_of_day),
+                                  max(dados_agg$hour_of_day),
+                                  by = 1)) +
+  labs(title = "TOTAL REVENUE BY HOUR AND WEEKDAY",
+       x = "HOUR",
+       y = "TOTAL REVENUE",
+       color = "WEEKDAY") +
+  theme_minimal(base_family = "Zilla") +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+```
+
+[Depois]{.underline}
+
+```{r}
+library(ggnewscale)
+
+# Agregação: soma total por hora e dia
+total_por_hora_dia <- dados %>%
+  group_by(hour_of_day, Weekday) %>%
+  summarise(total_money = sum(money)) %>%
+  ungroup()
+
+# Encontrar o café de maior receita para cada hora e dia
+coffee_top <- dados %>%
+  group_by(hour_of_day, Weekday, coffee_name) %>%
+  summarise(coffee_money = sum(money)) %>%
+  ungroup() %>%
+  group_by(hour_of_day, Weekday) %>%
+  slice_max(coffee_money, n = 1) %>%
+  ungroup() %>%
+  select(hour_of_day, Weekday, coffee_name)
+
+# Juntar o nome do café dominante à agregação total
+heatmap_data <- total_por_hora_dia %>%
+  left_join(coffee_top, by = c("hour_of_day", "Weekday"))
+
+# Definir fator dos dias da semana
+heatmap_data$Weekday <- factor(heatmap_data$Weekday,
+                               levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+
+# Identificar top 10 picos
+heatmap_data <- heatmap_data %>%
+  mutate(is_top10 = total_money %in% (sort(total_money, decreasing = TRUE)[1:10]))
+
+# Criar subconjuntos
+top10 <- filter(heatmap_data, is_top10 == TRUE)
+resto <- filter(heatmap_data, is_top10 == FALSE)
+
+# Plot com escalas de cor separadas e labels para top 10
+g2 <- ggplot() +
+  geom_tile(data = resto, aes(x = Weekday, y = factor(hour_of_day), fill = total_money)) +
+  scale_fill_gradient(low = "red", high = "blue", name = "Other Sales") +
+  new_scale_fill() +
+  geom_tile(data = top10, aes(x = Weekday, y = factor(hour_of_day), fill = total_money)) +
+  scale_fill_gradient(low = "yellow", high = "green", name = "Sales Peaks") +
+  geom_text(
+  data = top10,
+  aes(x = Weekday, y = factor(hour_of_day), label = coffee_name),
+  size = 2, family = "Zilla", fontface = "bold", color = "black") +
+  labs(title = "TOP 10 PEAK SALES TIMES WITH BEST-SELLING PRODUCTS",
+       x = "WEEKDAY",
+       y = "HOUR") +
+  theme_classic(base_family = "Zilla") +
+  theme(plot.title = element_text(hjust = 0.5, size = 14))
+```
+
+[Grid dos gráficos]{.underline}
+
+```{r, fig.width=7, fig.height=10, fig.align='center'}
+g1 / g2 +
+  plot_annotation(
+    caption = "(A) Gráfico inicial sem ajustes. (B) Gráfico otimizado com storytelling. \nBy Wanessa Alves Lima",
+    tag_levels = "A",     
+    tag_prefix = "(",     
+    tag_suffix = ")",
+    theme = theme(plot.caption = element_text(hjust = 0, family = "Zilla")
+    )
+  )
+```
+

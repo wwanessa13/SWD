@@ -1,0 +1,366 @@
+---
+title: "Cores"
+format: html
+execute:
+  warning: false
+  message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{=html}
+<style>
+p {
+  text-align: justify;
+}
+</style>
+```
+
+O ggplot2 permite personalizar as cores das formas com os argumentos:
+
+-   fill - para áreas preenchidas, barras, caixas ou polígonos. Afeta a cor interna do objeto. Geoms comuns: `geom_bar()`, `geom_col(),` `geom_boxplot(),` `geom_histogram(),` `geom_area()` e `geom_tile()`.
+
+-   color (ou colour) - para linhas, contornos e pontos. Afeta a borda ou traço do objeto. Geoms comuns: `geom_point(),` `geom_line()` e `geom_text().`
+
+Quando se deseja usar uma **cor fixa**, basta especificá-la fora do `aes()`. Assim, todos os elementos da camada assumem a cor definida, independentemente dos valores dos dados. Por outro lado, quando as cores dependem de uma variável, elas devem ser definidas dentro do `aes()`, e o controle fino é feito por meio das **escalas de cor**.
+
+Existem diferentes formas de definir uma cor:
+
+NOME - usar o nome da cor (em inglês).
+
+```{r}
+colors()
+```
+
+RGB - escolher a quantidade de vermelho, verde e azul.
+
+Exemplo: rgb(0.3, 0.5, 0.5)
+
+![](images/clipboard-2018822984.png){fig-align="center" width="384"}
+
+HEX CODE - informar o código hexadecimal da cor.
+
+Exemplo: #704238
+
+![](images/clipboard-234904706.png){fig-align="center" width="320"}
+
+Busque no navegador por *pick color* ou faça o download do seletor de cores *Instant Eyedropper* (Windows) ou *ColorSlurp* (Mac).
+
+**Paletas**
+
+Tipos de paletas:
+
+-   Sequenciais: são adequadas para dados ordenados que progridem de baixo para alto. Os passos de luz dominam a aparência desses esquemas, com cores claras para valores de dados baixos e cores escuras para valores de dados altos.
+
+-   Divergentes: colocam igual ênfase nos valores críticos de faixa média e nos extremos em ambas as extremidades do intervalo de dados. A classe crítica ou quebra no meio da lenda é enfatizada com cores claras e extremos baixos e altos são enfatizados com cores escuras que têm tons contrastantes.
+
+-   Qualitativas: não implicam diferenças de magnitude entre as classes de lendas, e as tonalidades são usadas para criar as principais diferenças visuais entre as classes. Os esquemas qualitativos são mais adequados para representar dados nominais ou categóricos.
+
+```{r}
+# Função para exibir uma paleta
+mostrar_paleta <- function(cores) { 
+  n <- length(cores) 
+  barplot(rep(1, n), col = cores, border = NA, space = 0, axes = FALSE)
+}
+```
+
+[Manual]{.underline}
+
+```{r}
+# Cores nomeadas
+mostrar_paleta(c("red", "darkgreen", "lightblue", "orange"))
+
+# Cores RGB (https://colorhunt.co/palette/a3dc9adee791fff9bdffd6ba)
+mostrar_paleta(c(rgb(163, 220, 154, maxColorValue = 255), rgb(222, 231, 145, maxColorValue = 255), rgb(255, 249, 189, maxColorValue = 255), rgb(255, 214, 186, maxColorValue = 255)))
+
+# Código hexadecimal (https://paletter.beloweb.name/en/leaves-and-flower/)
+mostrar_paleta(c("#ffa9b9", "#fcd5bd", "#f2ffbf", "#d9e99e", "#c0d27e"))
+```
+
+[Nativas]{.underline}
+
+```{r}
+mostrar_paleta(rainbow(5))
+mostrar_paleta(heat.colors(5))   
+mostrar_paleta(terrain.colors(5))
+mostrar_paleta(topo.colors(5))   
+mostrar_paleta(cm.colors(5))     
+```
+
+No ggplot2:
+
+Discreta
+
+`scale_color_manual(values = c(...))`
+
+`scale_fill_manual(values = c(...))`
+
+Contínua
+
+`scale_color_gradient(low, high)`
+
+`scale_fill_gradient(low, high)`
+
+`scale_color_gradient2(low, mid, high, midpoint = ...)`
+
+`scale_fill_gradient2(low, mid, high, midpoint = ...)`
+
+`scale_color_gradientn(colors = c(...))`
+
+`scale_fill_gradientn(colors = c(...))`
+
+[Brewer]{.underline}
+
+```{r}
+library(RColorBrewer)
+```
+
+```{r, eval=FALSE}
+display.brewer.all()
+```
+
+![](images/clipboard-1296940915.png){fig-align="center" width="447"}
+
+```{r}
+mostrar_paleta(brewer.pal(5, "Set2"))
+```
+
+*No ggplot2:*
+
+Discretas:
+
+*scale_color_brewer(palette = "...")*
+
+*scale_fill_brewer(palette = "...")*
+
+Contínuas:
+
+*scale_color_distiller(palette = "...")*
+
+*scale_fill_distiller(palette = "...")*
+
+[Viridis]{.underline}
+
+```{r}
+library(viridis)
+```
+
+![](images/clipboard-1520697676.png){fig-align="center" width="400"}
+
+```{r}
+mostrar_paleta(viridis(5, option = "plasma"))
+```
+
+No ggplot2:
+
+Discreta
+
+`scale_color_viridis_d()`
+
+`scale_fill_viridis_d()`
+
+`scale_color_viridis(option = " ", discrete = TRUE)`
+
+`scale_fill_viridis(option = " ", discrete = TRUE)`
+
+Contínua
+
+`scale_color_viridis_c()`
+
+`scale_fill_viridis_c()`
+
+`scale_color_viridis(option = " ", discrete = FALSE)`
+
+`scale_fill_viridis(option = " ", discrete = FALSE)`
+
+[Paletter]{.underline}
+
+<https://pmassicotte.github.io/paletteer_gallery/>
+
+```{r, eval = FALSE}
+install.packages("nord")
+install.packages("fishualize")
+```
+
+```{r}
+library(paletteer)
+
+mostrar_paleta(nord::nord("frost"))
+
+mostrar_paleta(fishualize::fish(10, option = "Acanthisthius_brasilianus"))
+```
+
+No ggplot2:
+
+Discreta
+
+`scale_color_paletteer_d("nationalparkcolors::Acadia")` `scale_fill_paletteer_d("nationalparkcolors::Acadia")` `paletteer_d("nationalparkcolors::Acadia")`
+
+Contínua
+
+`scale_color_paletteer_c("ggthemes::Red-Green-White Diverging")` `scale_fill_paletteer_c("ggthemes::Red-Green-White Diverging")` `paletteer_c("ggthemes::Red-Green-White Diverging")`
+
+[colorspace]{.underline}
+
+[https://colorspace.r-forge.r-project.org/articles/ggplot2_color_scales.html](https://colorspace.r-forge.r-project.org/articles/ggplot2_color_scales.html#available-palettes)
+
+O pacote oferece paletas qualitativas, sequenciais e divergentes baseadas em HCL, totalmente integradas ao ggplot2. HCL refere-se ao espaço de cor cilíndrico Hue (Matiz), Chroma (Croma) e Lightness (Luminância).
+
+```{r}
+library(colorspace)
+
+hcl_palettes()
+
+hcl_palettes(plot = TRUE)
+
+mostrar_paleta(hcl.colors(10, palette = "Cork"))
+```
+
+No ggplot2:
+
+As escalas são chamadas através do esquema:
+
+scale\_`aesthetic`\_`datatype`\_`colorscale`()
+
+Onde:
+
+`aesthetic` é o nome da estética (fill, color, colour).
+
+`datatype` é o tipo da variável plotada (discrete, continuous).
+
+`colorscale` define o tipo de escala de cores usada (qualitative, sequential, diverging).
+
+Escalas qualitativas:
+
+*scale\_\*\_discrete_qualitative(palette = "name")*
+
+Escalas sequenciais:
+
+scale\_\*\_*discrete_sequential(palette = "name")*
+
+*scale\_\*\_continuous_sequential(palette = "name")*
+
+Escalas divergentes:
+
+scale\_\*\_*discrete_diverging(palette = "name")*
+
+*scale\_\*\_continuous_diverging(palette = "name")*.
+
+[ggsci]{.underline}
+
+<https://nanx.me/ggsci/articles/ggsci.html>
+
+O pacote oferece uma coleção de paletas de cores de alta qualidade inspiradas em cores usadas em periódicos científicos, bibliotecas de visualização de dados, filmes de ficção científica e programas de TV.
+
+```{r}
+library(ggsci)
+
+# AAAS (Science)
+mostrar_paleta(pal_aaas("default")(10))
+
+# NEJM (New England Journal of Medicine)
+mostrar_paleta(pal_nejm("default")(8))
+
+# Simpsons
+mostrar_paleta(pal_simpsons()(7))
+```
+
+```{r, echo = FALSE}
+library(tidyverse)
+```
+
+**Aplicação**
+
+[Paletas discretas]{.underline}
+
+```{r}
+(p1 <- ggplot(mtcars, aes(x = factor(cyl), y = mpg, fill = factor(cyl))) +
+  geom_boxplot() +
+  labs(title = "Paleta padrão", x = "Cilindros", y = "Milhas por galão") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none"))
+
+p1 +   
+  scale_fill_manual(values = c("red", "blue", "green")) +
+  ggtitle("Paleta customizada manual")
+
+library(RColorBrewer)
+p1 + 
+  scale_fill_brewer(palette = "Set2") +
+  ggtitle("Paleta RColorBrewer Set2")
+
+library(viridis)
+p1 +
+  scale_fill_viridis_d(option = "mako") +
+  ggtitle("Paleta viridis mako")
+
+library(paletteer)
+p1 +
+  scale_fill_paletteer_d("nationalparkcolors::Acadia") +
+  ggtitle("Paletteer Acadia")
+
+library(colorspace)
+p1 +
+  scale_fill_discrete_qualitative(palette = "Cold") +
+  ggtitle("Colorspace Cold HCL palette's")
+
+library(ggsci)
+p1 +
+  scale_fill_startrek() +
+  ggtitle("Paleta ggsci startrek")
+```
+
+Paletas contínuas
+
+```{r}
+mtcars$carro <- rownames(mtcars)
+
+(p2 <- ggplot(mtcars, aes(x = reorder(carro, mpg), y = mpg, fill = mpg)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Paleta padrão", x = "Modelo", y = "Milhas por galão") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.title = element_text(hjust = 0.5), 
+        legend.position = "none"))
+
+library(RColorBrewer)
+p2 + 
+  scale_fill_distiller(palette = "PuBuGn") +
+  ggtitle("Paleta RColorBrewer PuBuGn")
+
+library(viridis)
+p2 +
+  scale_fill_viridis_c(option = "D") +
+  ggtitle("Paleta viridis")
+
+library(paletteer)
+p2 +
+  scale_fill_paletteer_c("ggthemes::Orange-Blue Diverging") +
+  ggtitle("Paletteer ggthemes Orange-Blue")
+
+library(colorspace)
+p2 +
+  scale_fill_continuous_sequential(palette = "Purple-Blue") +
+  ggtitle("Colorspace Purple-Blue HCL palette's")
+
+library(ggsci)
+p2 +
+  scale_fill_tw3("teal") +
+  ggtitle("Paleta ggsci startrek")
+```
+
+Encontre a melhor paleta para seu tipo de gráfico: <https://r-graph-gallery.com/color-palette-finder>
+
+Uma forma de promover a inclusão de pessoas com algum tipo de distúrbio visual é a utilização de paletas de cores acessíveis. Essas paletas são projetadas para garantir boa legibilidade e contraste, independentemente de limitações visuais, como o daltonismo. Um exemplo bastante utilizado é a **paleta *viridis::viridis***, que foi desenvolvida com critérios de perceptibilidade uniforme, garantindo que as diferenças entre as cores sejam facilmente distintas em gráficos, além de manter boa legibilidade tanto em telas quanto em impressões em escala de cinza.
+
+![](images/clipboard-2659513975.png){fig-align="center" width="700"}
+
+![](images/clipboard-779905788.png){fig-align="center" width="700"}
+
+![](images/clipboard-213456569.png){fig-align="center" width="700"}
+
+Leitura recomendada:
+
+![](images/clipboard-874336801.png){fig-align="center" width="242"}

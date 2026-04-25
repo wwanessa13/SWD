@@ -1,0 +1,198 @@
+---
+title: "Comunicação personalizada"
+format: html
+execute:
+  warning: false
+  message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{=html}
+<style>
+p {
+  text-align: justify;
+}
+</style>
+```
+
+Não existe um gráfico universal. O que funciona para um público pode ser ineficiente ou até confuso para outro.
+
+A primeira questão a considerar é quem vai consumir os dados.
+
+-   Para um público técnico, geralmente é importante manter o máximo de detalhe: escalas completas, intervalos de confiança, jargão estatístico e representações fiéis da variabilidade. Esses profissionais estão interessados em explorar nuances, hipóteses alternativas e limitações.
+
+-   Já para um público leigo ou executivo, o excesso de detalhe pode ser um obstáculo. O foco deve ser na mensagem principal, evitando termos técnicos e priorizando clareza visual. O objetivo é apoiar a tomada de decisão, não ensinar estatística.
+
+Dados: <https://www.kaggle.com/datasets/joebeachcapital/fast-food?select=FastFoodNutritionMenuV2.csv>
+
+Contexto: O conjunto de dados contém informações dos valores nutricionais de lanches dos maiores e mais populares restaurantes de fast food:
+
+-   McDonald's
+
+-   Burger King
+
+-   Wendy's
+
+-   Kentucky Fried Chicken (KFC)
+
+-   Taco Bell
+
+-   Pizza Hut
+
+```{r}
+library(tidyverse)
+dados <- read.csv("FastFoodNutritionMenuV2.csv") %>%
+  filter(Company != "Wendy’s" & Company != "Taco Bell")
+  
+glimpse(dados)
+
+# Converter colunas de texto para fator e colunas nutricionais para numérico
+dados <- dados %>%
+  mutate(across(c(Company, Item), ~as.factor(.))) %>%
+  mutate(across(c(Calories,
+                  Calories.from.Fat,
+                  Total.Fat..g.,
+                  Saturated.Fat..g.,
+                  Trans.Fat..g.,
+                  Cholesterol..mg.,
+                  Sodium...mg.,
+                  Carbs..g.,
+                  Fiber..g.,
+                  Sugars..g.,
+                  Protein..g.,
+                  Weight.Watchers.Pnts), 
+                ~as.numeric(.))) 
+
+glimpse(dados)
+
+summary(dados)
+```
+
+# Público técnico
+
+Para analistas e engenheiros, é importante entender a dispersão dos dados e identificar relações complexas entre variáveis. Pode-se usar gráficos de dispersão, boxplots e histogramas para explorar a variabilidade dos dados.
+
+**Distribuição de calorias por empresa**
+
+```{r}
+(g <- ggplot(dados, aes(x = Company, y = Calories, fill = Company)) +
+  geom_boxplot() +
+  geom_jitter(width = 0.2, alpha = 0.3, color = "black") +
+  labs(title = "Distribuição de calorias por empresa",
+       x = "Empresa", y = "Calorias") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5), 
+        legend.position = "none"))
+```
+
+**Variabilidade de Calorias x Gordura Total por empresa**
+
+```{r}
+(g <- ggplot(dados, aes(x = Calories, y = Total.Fat..g., color = Company)) +
+  geom_point(size = 3) +
+  scale_color_brewer(palette = "Spectral") +
+  scale_fill_brewer(palette = "Spectral") +
+  labs(x = "Calorias", y = "Gordura Total", color = "Empresa") +
+  theme_minimal() +
+  theme(legend.position = "bottom"))
+
+library(ggside)
+g +
+  geom_xsidehistogram(aes(fill = Company), orientation = "x", alpha = 0.7, show.legend = FALSE) +
+  geom_ysidedensity(aes(fill = Company), orientation = "y", alpha = 0.7, color = NA, show.legend = FALSE)
+
+library(ggExtra)
+ggMarginal(
+  g,
+  type = "boxplot",       # "density" ou "histogram" 
+  groupColour = TRUE,       
+  groupFill = TRUE,         
+  alpha = 0.6
+)
+```
+
+# Público leigo
+
+Para um público leigo, o foco deve ser na clareza e simplicidade. Gráficos devem destacar as principais conclusões sem sobrecarregar com detalhes técnicos.
+
+**10 itens mais calóricos de cada empresa**
+
+Objetivo: Avaliar por empresa os itens mais calóricos para comparar e tomar decisões.
+
+```{r, fig.width=9, fig.height=4}
+# Selecionar 10 itens mais calóricos de cada empresa
+top10_itens <- dados %>%
+  group_by(Company) %>%
+  arrange(desc(Calories)) %>%
+  slice(1:10) %>%
+  ungroup()
+
+# Ranking das empresas pela média de calorias
+rank_empresas <- dados %>%
+  group_by(Company) %>%
+  summarise(media_calorias = mean(Calories, na.rm = TRUE),
+            n_produtos = n()) %>%
+  arrange(desc(media_calorias))
+
+# Reordenar empresas pelo ranking médio calórico 
+ordem_empresas <- rank_empresas$Company
+
+# Visualizar os top 10 itens mais calóricos por empresa
+top10_itens <- top10_itens %>%
+  mutate(Company = factor(Company, levels = ordem_empresas),
+         Item = fct_reorder(Item, Calories))
+
+ggplot(top10_itens, aes(x = Item, y = Calories, fill = Company)) +
+  geom_col() +
+  facet_wrap(~ Company, scales = "free") +
+  coord_flip() +
+  labs(title = "Top 10 Itens Mais Calóricos de Cada Empresa",
+       x = "Item",
+       y = "Calorias") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")
+```
+
+**Proporção dos itens por faixas de calorias**
+
+Objetivo: Dividir os itens de fast food em faixas de calorias e mostrar a proporção de cada faixa.
+
+```{r}
+faixas <- c("Até 300 kcal", "300 a 600 kcal", "600 a 900 kcal", "Acima de 900 kcal")
+empresas <- unique(na.omit(dados$Company))
+
+dados_pizza <- dados %>%
+  mutate(faixa_calorias = case_when(
+    Calories < 300 ~ "Até 300 kcal",
+    Calories >= 300 & Calories < 600 ~ "300 a 600 kcal",
+    Calories >= 600 & Calories < 900 ~ "600 a 900 kcal",
+    Calories >= 900 ~ "Acima de 900 kcal"
+  )) %>%
+  filter(!is.na(faixa_calorias), !is.na(Company)) %>%
+  group_by(Company, faixa_calorias) %>%
+  summarise(qtd_itens = n(), .groups = "drop") %>%
+  group_by(Company) %>%
+  mutate(prop = 100 * qtd_itens / sum(qtd_itens)) %>%
+  ungroup()
+
+dados_pizza$faixa_calorias <- factor(
+  dados_pizza$faixa_calorias,
+  levels = c("Até 300 kcal", "300 a 600 kcal", "600 a 900 kcal", "Acima de 900 kcal"))
+
+ggplot(dados_pizza, aes(x = "", y = prop, fill = faixa_calorias)) +
+  geom_col(width = 1) +
+  facet_wrap(~ Company) +
+  coord_polar(theta = "y") +
+  labs(
+    title = "Distribuição proporcional dos itens por faixa de calorias",
+    fill = "Faixa de calorias"
+  ) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+**Conclusão**
+
+A comunicação de dados deve ser adaptada ao público-alvo. Para profissionais técnicos, gráficos detalhados e complexos são apropriados, enquanto para o público leigo, a simplicidade e clareza são essenciais. A escolha do tipo de gráfico e a forma como os dados são apresentados podem fazer toda a diferença na compreensão e na tomada de decisões informadas.
