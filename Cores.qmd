@@ -369,14 +369,13 @@ library(cowplot)
 library(grid)
 
 mtcars_bi <- mtcars %>%
-  tibble::rownames_to_column("carro") %>%
   bi_class(
     x = mpg,
     y = hp,
     style = "quantile",
     dim = 3
   ) %>% 
-  select(carro, mpg, hp, bi_class)
+  select(mpg, hp, bi_class)
 
 head(mtcars_bi)
 
@@ -418,7 +417,6 @@ grafico_mtcars +
   )
 
 mtcars_bi2 <- mtcars %>%
-  tibble::rownames_to_column("carro") %>%
   bi_class(
     x = hp,      
     y = qsec,    

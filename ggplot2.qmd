@@ -677,30 +677,64 @@ g1 + g2 + g3
 g1 / g2 / g3
 ```
 
-Manter uma única legenda
+**Fontes**
+
+Fontes do R:
+
+-   sans (padrão)
+
+-   serif
+
+-   mono
+
+Fontes do sistema operacional:
 
 ```{r}
-(g <- g1 + g2 + g3 +
-  plot_layout(guides = "collect"))
+fontes <- systemfonts::system_fonts()
 ```
 
-Adicionar título, subtítulo, fonte e tags
+Baixar fontes do google: <https://fonts.google.com>
 
 ```{r}
-g +
+library(showtext)
+
+font_add_google("Shadows Into Light", "shadows")
+
+showtext_auto()
+```
+
+```{r}
+g1 + g2 / g3 
+
+g1 + g2 / g3 +
+  plot_layout(guides = 'collect') +
   plot_annotation(
-    tag_levels = "A",
-    tag_prefix = "(",
-    tag_suffix = ")",
-    title = "Evolução de indicadores globais ao longo do tempo",
-    subtitle = "Comparação entre continentes: expectativa de vida, população e PIB per capita",
-    caption = "Fonte: Gapminder",
-    theme = theme(
-      plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
-      plot.subtitle = element_text(hjust = 0.5, size = 12),
-      plot.caption = element_text(hjust = 0.5, size = 10)
-    )
-  )
+  title = "Comparação entre os continentes",
+  subtitle = "Evolução da expectativa de vida, da população e do PIB per capita",
+  theme = theme(plot.title = element_text(hjust = 0.5),
+                plot.subtitle = element_text(hjust = 0.5),
+                text = element_text(face = "bold", size = 14, 
+                          family = "shadows", hjust = 0.5)),
+  tag_levels = 'A',
+  tag_prefix = "(",
+  tag_suffix = ")")
+```
+
+```{r}
+(g11 <- ggplot(mtcars, aes(x = hp, y = mpg, color = factor(cyl))) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(title = " ", x = "Potência", 
+       y = "Consumo", color = "Cilindros") +
+  theme_classic())
+
+(g22 <- ggplot(mtcars, aes(x = hp, y = mpg, fill = factor(cyl))) +
+  geom_boxplot(alpha = 0.7) +
+  labs(x = "Potência", y = "Consumo") +
+  theme_classic(base_size = 10) +
+  theme(legend.position = "none"))
+
+g11 + 
+  inset_element(g22, left = 0.3, bottom = 0.4, right  = 0.95, top = 1)
 ```
 
 ```{r}
@@ -750,6 +784,14 @@ ggdraw() +
   ) +
   draw_plot(painel, 0, 0.15, 1, 0.75) +
   draw_plot(legend, 0.3, 0.02, 0.4, 0.1)
+
+ggdraw() +
+  draw_plot(g11) +  
+  draw_plot(
+    g22, 
+    x = 0.4, y = 0.55,   
+    width = 0.35, height = 0.35
+  )
 ```
 
 ```{r}
@@ -787,66 +829,23 @@ grid.text(
   vp = viewport(layout.pos.row = 3, layout.pos.col = 1:3),
   gp = gpar(fontsize = 10)
 )
-```
 
-### Fontes
+grid.newpage()
 
-Fontes do R:
+pushViewport(viewport(x = 0, y = 0, width = 1, height = 1,
+                      just = c("left", "bottom")))
 
--   sans (padrão)
+print(g11, newpage = FALSE)
 
--   serif
+pushViewport(viewport(
+  x = 0.3, y = 0.6,          
+  width = 0.3, height = 0.3,  
+  just = c("left", "bottom")
+))
 
--   mono
+print(g22, newpage = FALSE)
 
-Fontes do sistema operacional:
-
-```{r}
-fontes <- systemfonts::system_fonts()
-```
-
-Baixar fontes do google: <https://fonts.google.com>
-
-```{r}
-library(showtext)
-
-font_add_google("Shadows Into Light", "shadows")
-
-showtext_auto()
-```
-
-```{r}
-g1 + g2 / g3 
-
-g1 + g2 / g3 +
-  plot_layout(guides = 'collect') +
-  plot_annotation(
-  title = "Comparação entre os continentes",
-  subtitle = "Evolução da expectativa de vida, da população e do PIB per capita",
-  theme = theme(plot.title = element_text(hjust = 0.5),
-                plot.subtitle = element_text(hjust = 0.5),
-                text = element_text(face = "bold", size = 14, 
-                          family = "shadows", hjust = 0.5)),
-  tag_levels = 'A',
-  tag_prefix = "(",
-  tag_suffix = ")")
-```
-
-```{r}
-(g1 <- ggplot(mtcars, aes(x = hp, y = mpg, color = factor(cyl))) +
-  geom_point(size = 3, alpha = 0.7) +
-  labs(title = " ", x = "Potência", 
-       y = "Consumo", color = "Cilindros") +
-  theme_classic())
-
-(g2 <- ggplot(mtcars, aes(x = hp, y = mpg, fill = factor(cyl))) +
-  geom_boxplot(alpha = 0.7) +
-  labs(x = "Potência", y = "Consumo") +
-  theme_classic(base_size = 10) +
-  theme(legend.position = "none"))
-
-g1 + 
-  inset_element(g2, left = 0.3, bottom = 0.4, right  = 0.95, top = 1)
+popViewport(2)
 ```
 
 ### Realce
