@@ -361,6 +361,210 @@ Uma forma de promover a inclusão de pessoas com algum tipo de distúrbio visual
 
 ![](images/clipboard-213456569.png){fig-align="center" width="700"}
 
+Em vez de usar uma escala de cor tradicional (univariada), podemos combinar duas variáveis simultaneamente em uma matriz de cores (geralmente 2×2, 3×3 ou 4x4) usando o pacote `biscale`. A função bi_class() transforma variáveis contínuas em classes (por quantis, por exemplo), enquanto bi_scale_color() aplica a paleta bivariada e bi_legend() gera uma legenda interpretável.
+
+```{r}
+library(biscale)
+library(cowplot)
+library(grid)
+
+mtcars_bi <- mtcars %>%
+  tibble::rownames_to_column("carro") %>%
+  bi_class(
+    x = mpg,
+    y = hp,
+    style = "quantile",
+    dim = 3
+  ) %>% 
+  select(carro, mpg, hp, bi_class)
+
+head(mtcars_bi)
+
+grafico_mtcars <- ggplot(mtcars_bi, aes(x = mpg, y = hp, color = bi_class)) +
+  geom_point(size = 4) +
+  bi_scale_color(pal = "DkBlue", dim = 3) +
+  labs(
+    title = " ",
+    x = "Milhas por galão (mpg)",
+    y = "Potência (hp)"
+  ) +
+  theme_bw() +
+  theme(legend.position = "none")
+
+legenda_mtcars <- bi_legend(
+  pal = "DkBlue",
+  dim = 3,
+  xlab = "Maior mpg",
+  ylab = "Maior hp",
+  size = 8
+)
+
+g_legend <- ggplotGrob(legenda_mtcars)
+
+plot_grid(
+  grafico_mtcars,
+  legenda_mtcars,
+  ncol = 2,
+  rel_widths = c(3, 1)
+)
+
+grafico_mtcars +
+  theme_classic() +
+  theme(legend.position = "none") +
+  annotation_custom(
+    grob = g_legend,
+    xmin = 23, xmax = 33,   
+    ymin = 200, ymax = 350
+  )
+
+mtcars_bi2 <- mtcars %>%
+  tibble::rownames_to_column("carro") %>%
+  bi_class(
+    x = hp,      
+    y = qsec,    
+    style = "quantile",
+    dim = 2
+  )
+
+grafico_mtcars2 <- ggplot(
+  mtcars_bi2,
+  aes(
+    x = wt,          
+    y = mpg,         
+    color = bi_class 
+  )
+) +
+  geom_point(size = 4, alpha = 0.9) +
+  bi_scale_color(pal = "Brown", dim = 2) +
+  labs(
+    title = " ",
+    x = "Peso do carro (wt)",
+    y = "Milhas por galão (mpg)"
+  ) +
+  theme_bw() +
+  theme(legend.position = "none")
+
+legenda_mtcars2 <- bi_legend(
+  pal = "Brown",
+  dim = 2,
+  xlab = "Maior hp",
+  ylab = "Maior qsec",
+  size = 8
+)
+
+plot_grid(
+  grafico_mtcars2,
+  legenda_mtcars2,
+  ncol = 2,
+  rel_widths = c(3, 1)
+)
+
+penguins_bi <- palmerpenguins::penguins %>%
+  drop_na(bill_length_mm, body_mass_g, species) %>%
+  bi_class(
+    x = bill_length_mm,
+    y = body_mass_g,
+    style = "quantile",
+    dim = 3
+  ) %>% 
+  select(bill_length_mm, body_mass_g, species, bi_class)
+
+head(penguins_bi)
+
+grafico_penguins <- ggplot(
+  penguins_bi,
+  aes(
+    x = bill_length_mm,
+    y = body_mass_g,
+    color = bi_class,
+    shape = species
+  )
+) +
+  geom_point(size = 3, alpha = 0.8) +
+  bi_scale_color(pal = "GrPink", dim = 3) +
+  labs(
+    title = " ",
+    x = "Comprimento do bico (mm)",
+    y = "Massa corporal (g)",
+    shape = "Espécie"
+  ) +
+  theme_bw() +
+  guides(color = "none") +
+  theme(legend.position = "top")
+
+legenda_penguins <- bi_legend(
+  pal = "GrPink",
+  dim = 3,
+  xlab = "Maior comprimento do bico",
+  ylab = "Maior massa corporal",
+  size = 6
+)
+
+g_legend <- ggplotGrob(legenda_penguins)
+
+plot_grid(
+  grafico_penguins,
+  legenda_penguins,
+  ncol = 2,
+  rel_widths = c(3, 1)
+)
+
+grafico_penguins +
+  theme_classic() +
+  annotation_custom(
+    grob = g_legend,
+    xmin = 30, xmax = 40,   
+    ymin = 5000, ymax = 6500
+  )
+
+penguins_bi2 <- palmerpenguins::penguins %>%
+  drop_na(
+    bill_length_mm,
+    body_mass_g,
+    flipper_length_mm,
+    bill_depth_mm
+  ) %>%
+  bi_class(
+    x = flipper_length_mm, 
+    y = bill_depth_mm,     
+    style = "quantile",
+    dim = 4
+  )
+
+grafico_penguins2 <- ggplot(
+  penguins_bi2,
+  aes(
+    x = bill_length_mm, 
+    y = body_mass_g,    
+    color = bi_class    
+  )
+) +
+  geom_point(size = 3, alpha = 0.85) +
+  bi_scale_color(pal = "PurpleOr", dim = 4) +
+  labs(
+    title = "",
+    x = "Comprimento do bico (mm)",
+    y = "Massa corporal (g)"
+  ) +
+  theme_bw() +
+  theme(legend.position = "none")
+
+legenda_penguins2 <- bi_legend(
+  pal = "PurpleOr",
+  dim = 4,
+  xlab = "Maior comprimento da nadadeira",
+  ylab = "Maior profundidade do bico",
+  size = 8
+)
+
+plot_grid(
+  grafico_penguins2,
+  legenda_penguins2,
+  ncol = 2,
+  rel_widths = c(3, 1)
+)
+```
+
 Leitura recomendada:
 
 ![](images/clipboard-874336801.png){fig-align="center" width="242"}

@@ -432,6 +432,161 @@ p +
   theme_classic()
 ```
 
+**Legendas**
+
+```{r}
+dados <- palmerpenguins::penguins %>%
+  drop_na()
+```
+
+```{r}
+(l <- ggplot(dados, aes(
+  x = bill_length_mm,
+  y = body_mass_g,
+  color = species
+)) +
+  geom_point(size = 3) +
+  labs(
+    title = " ",
+    x = "Comprimento do bico (mm)",
+    y = "Massa corporal (g)",
+    color = "Espécie"
+  ) +
+  theme_minimal())
+
+# Mudar a ordem das legendas
+
+l + scale_color_discrete(
+    breaks = c("Gentoo", "Adelie", "Chinstrap"),  
+    name = "Espécie do pinguim"                   
+  )
+
+l + scale_color_discrete(
+    labels = c("Gentoo" = "Grande",
+             "Adelie" = "Adélia",
+             "Chinstrap" = "Barbicha")
+)
+
+l + scale_color_manual(
+  values = c(
+    "Gentoo" = "blue",
+    "Adelie" = "red",
+    "Chinstrap" = "green"
+  ),
+  breaks = c("Gentoo", "Adelie", "Chinstrap"),
+  labels = c("Grande", "Adélia", "Barbicha"),
+  name = "Espécie"
+)
+```
+
+```{r}
+(l1 <- ggplot(
+  dados,
+  aes(
+    x = bill_length_mm,        
+    y = body_mass_g,           
+    color = island,            
+    shape = species            
+  )
+) +
+  geom_point(size = 3, alpha = 0.8) +
+  labs(
+    title = "Múltiplas variáveis no mesmo gráfico",
+    x = "Comprimento do bico (mm)",
+    y = "Massa corporal (g)",
+    color = "Ilha",
+    shape = "Espécie"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)))
+
+l1 + theme(legend.position = "top")
+l1 + theme(legend.position = "bottom")
+l1 + theme(legend.position = "left")
+l1 + theme(legend.position = "right")
+l1 + theme(legend.position = "none")
+
+l1 + labs(color = NULL, shape = NULL)
+
+l1 +
+  guides(
+    color = guide_legend(title = NULL),
+    shape = guide_legend(title = "Espécie")
+  )
+
+l1 +
+  guides(
+    color = guide_legend(position = "top"),
+    shape = guide_legend(title = NULL)
+  )
+
+l1 +
+  guides(
+    color = guide_legend(position = "top"),
+    shape = guide_legend(position = "bottom")
+  )
+
+l1 +
+  guides(
+    color = guide_legend(reverse = TRUE),
+    shape = guide_legend(direction = "vertical", override.aes = list(size = 4, alpha = 1))
+  )
+
+l1 +
+  guides(
+    color = guide_legend(nrow = 1, byrow = TRUE),
+    shape = guide_legend(title.position = "top",
+                         label.position = "bottom"))
+    
+(g2 <- ggplot(
+  dados,
+  aes(
+    x = bill_depth_mm,        
+    y = bill_length_mm,           
+    alpha = flipper_length_mm,            
+    size =  body_mass_g           
+  )
+) +
+  geom_point(color = "blue") +
+  labs(
+    title = "Múltiplas variáveis no mesmo gráfico",
+    x = "Profundidade do bico (mm)",
+    y = "Comprimento do bico (mm)",
+    alpha = "Comprimento da nadadeira (mm)",
+    size = "Massa corporal (g)"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)))
+
+g2 +
+  scale_size(
+    range = c(2, 8),                    
+    name = "Massa corporal (g)"
+  ) +
+  scale_alpha(
+    range = c(0.4, 1),                 
+    name = "Comp. nadadeira (mm)"
+  ) +
+  guides(
+    size = guide_legend(
+      title.position = "top",
+      title.hjust = 0.5,
+      override.aes = list(alpha = 1)   
+    ),
+    alpha = guide_legend(
+      title.position = "top",
+      title.hjust = 0.5,
+      override.aes = list(size = 4)    
+    )
+  ) +
+  theme(
+    legend.position = "top",
+    legend.direction = "horizontal",
+    legend.box = "vertical",
+    legend.title.align = 0.5
+  )
+```
+
 ## Extensões
 
 Um ponto de destaque do ggplot2 é o vasto conjunto de extensões disponíveis, que ampliam suas possibilidades, permitindo ir muito além das visualizações tradicionais. Essa capacidade de expansão transformou o ggplot2 em uma ferramenta extremamente versátil, adequada tanto para trabalhos acadêmicos quanto para comunicação científica e empresarial.
@@ -475,7 +630,6 @@ library(patchwork)
 ```
 
 ```{r}
-view(gapminder::gapminder)
 (g1 <- gapminder::gapminder %>% 
   group_by(continent, year) %>% 
   summarise(lifeExp = mean(lifeExp)) %>% 
@@ -522,6 +676,120 @@ g1 + g2 + g3
 
 g1 / g2 / g3
 ```
+
+Manter uma única legenda
+
+```{r}
+(g <- g1 + g2 + g3 +
+  plot_layout(guides = "collect"))
+```
+
+Adicionar título, subtítulo, fonte e tags
+
+```{r}
+g +
+  plot_annotation(
+    tag_levels = "A",
+    tag_prefix = "(",
+    tag_suffix = ")",
+    title = "Evolução de indicadores globais ao longo do tempo",
+    subtitle = "Comparação entre continentes: expectativa de vida, população e PIB per capita",
+    caption = "Fonte: Gapminder",
+    theme = theme(
+      plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+      plot.subtitle = element_text(hjust = 0.5, size = 12),
+      plot.caption = element_text(hjust = 0.5, size = 10)
+    )
+  )
+```
+
+```{r}
+library(cowplot)
+```
+
+```{r}
+legend <- get_legend(
+  g1 + theme(legend.position = "bottom")
+)
+
+g1_clean <- g1 + theme(legend.position = "none")
+g2_clean <- g2 + theme(legend.position = "none")
+g3_clean <- g3 + theme(legend.position = "none")
+
+plot_grid(
+  plot_grid(
+    g1_clean, g2_clean, g3_clean,
+    ncol = 3,
+    labels = c("(A)", "(B)", "(C)"),
+    label_size = 14,
+    label_fontface = "bold"
+  ),
+  legend,
+  ncol = 1,
+  rel_heights = c(1, 0.1)
+)
+
+painel <- plot_grid(
+  g1_clean, g2_clean, g3_clean,
+  ncol = 3,
+  labels = c("(A)", "(B)", "(C)"),
+  label_size = 14,
+  label_fontface = "bold"
+)
+
+ggdraw() +
+  draw_label(
+    "Evolução de indicadores globais ao longo do tempo",
+    x = 0.5, y = 0.98, hjust = 0.5,
+    fontface = "bold", size = 16
+  ) +
+  draw_label(
+    "Comparação entre continentes",
+    x = 0.5, y = 0.94, hjust = 0.5,
+    size = 12
+  ) +
+  draw_plot(painel, 0, 0.15, 1, 0.75) +
+  draw_plot(legend, 0.3, 0.02, 0.4, 0.1)
+```
+
+```{r}
+library(grid)
+```
+
+```{r}
+grid.newpage()
+
+pushViewport(
+  viewport(
+    layout = grid.layout(
+      nrow = 3, ncol = 3,
+      heights = unit(c(1, 10, 1), "null") # título | gráficos | fonte
+    )
+  )
+)
+
+grid.text(
+  "Evolução de indicadores globais",
+  vp = viewport(layout.pos.row = 1, layout.pos.col = 1:3),
+  gp = gpar(fontsize = 16, fontface = "bold")
+)
+
+print(g1, vp = viewport(layout.pos.row = 2, layout.pos.col = 1))
+print(g2, vp = viewport(layout.pos.row = 2, layout.pos.col = 2))
+print(g3, vp = viewport(layout.pos.row = 2, layout.pos.col = 3))
+
+grid.text("(A)", x = 0.17, y = 0.75, gp = gpar(fontsize = 14, fontface = "bold"))
+grid.text("(B)", x = 0.50, y = 0.75, gp = gpar(fontsize = 14, fontface = "bold"))
+grid.text("(C)", x = 0.83, y = 0.75, gp = gpar(fontsize = 14, fontface = "bold"))
+
+grid.text(
+  "Fonte: Gapminder",
+  vp = viewport(layout.pos.row = 3, layout.pos.col = 1:3),
+  gp = gpar(fontsize = 10)
+)
+```
+
+### Fontes
 
 Fontes do R:
 
